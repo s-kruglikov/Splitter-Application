@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Windows.Forms;
 
 namespace Splitter
@@ -23,6 +24,12 @@ namespace Splitter
 		public string FileName
 		{
 			get { return _fileName; }
+		}
+
+		public int ProgressMax
+		{
+			get { return progressBar1.Maximum; }
+			set { progressBar1.Maximum = value; }
 		}
 
 		#endregion
@@ -82,10 +89,7 @@ namespace Splitter
 
 		private void btnSplit_Click(object sender, EventArgs e)
 		{
-			if (OnSplitString != null)
-			{
-				OnSplitString(sender, e);
-			}
+			backgroundWorker1.RunWorkerAsync();
 		}
 
 		private void btnAbout_Click(object sender, EventArgs e)
@@ -96,6 +100,7 @@ namespace Splitter
 			}
 		}
 
+		#region Public Methods
 		/// <summary>
 		/// Shows messagebox with exception details
 		/// </summary>
@@ -109,5 +114,40 @@ namespace Splitter
 
 			MessageBox.Show(exceptionMessage);
 		}
+
+		public void BackgroundWorkerReport(int i)
+		{
+			backgroundWorker1.ReportProgress(i);
+		}
+
+		#endregion
+
+		#region Internal Implementations
+		/// <summary>
+		/// Starts bacground split string operation
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void backgroundWorker1_DoWork(object sender, DoWorkEventArgs e)
+		{
+			if (OnSplitString != null)
+			{
+				OnSplitString(sender, e);
+			}
+		}
+		
+		/// <summary>
+		/// Sets progressbar values
+		/// </summary>
+		/// <param name="sender"></param>
+		/// <param name="e"></param>
+		private void backgroundWorker1_ProgressChanged(object sender, ProgressChangedEventArgs e)
+		{
+			// Change the value of the ProgressBar to the BackgroundWorker progress.
+			progressBar1.Value = e.ProgressPercentage;
+			// Set the text.
+			//this.Text = e.ProgressPercentage.ToString();
+		}
+		#endregion
 	}
 }

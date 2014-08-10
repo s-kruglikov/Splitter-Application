@@ -14,6 +14,8 @@ namespace Splitter
 
 		string FileName { get; }
 
+		int ProgressMax { get; set; }
+
 		#endregion
 
 		#region Events
@@ -28,6 +30,8 @@ namespace Splitter
 		#region Methods
 
 		void NotifyException(string exceptionUserText, Exception exc);
+
+		void BackgroundWorkerReport(int i);
 
 		#endregion
 	}

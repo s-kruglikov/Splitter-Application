@@ -1,10 +1,6 @@
 ﻿using System;
-using System.CodeDom;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
 
 namespace Splitter
@@ -13,9 +9,11 @@ namespace Splitter
 	{
 		private readonly IMainView _mainView;
 
+		#region Constants
 		private const string AboutInfoText = "Splitter v.{0}{1}Splits string onto multi lines by split symbol";
 		private const string OpenFileExceptionText = @"Unable to open file. Please refer for exception details.";
 		private const string SaveFileExceptionText = @"Unable to save file. Please feref for exception details.";
+		#endregion
 
 		public MainPresenter(IMainView mainView)
 		{
@@ -53,9 +51,28 @@ namespace Splitter
 		void _mainView_OnSplitString(object sender, EventArgs e)
 		{
 			var formatter = new TextFormatter();
+			formatter.OnRowsCalculated += formatter_OnRowsCalculated;
+			formatter.OnRowAdded += formatter_OnRowAdded;
+
 			var splittedString = formatter.SplitString(_mainView.EditorText, _mainView.SplitCharsString);
 
 			_mainView.EditorText = splittedString;
+		}
+
+		void formatter_OnRowAdded(object sender, EventArgs e)
+		{
+			var onRowAddedEventArgs = e as OnRowAddedEventArgs;
+			if (onRowAddedEventArgs != null)
+			{
+				_mainView.BackgroundWorkerReport(onRowAddedEventArgs.RowsProcessed);
+			}
+		}
+
+		void formatter_OnRowsCalculated(object sender, EventArgs eventArgs)
+		{
+			var onRowsCalculatedEventArgs = eventArgs as OnRowsCalculatedEventArgs;
+			if (onRowsCalculatedEventArgs != null)
+				_mainView.ProgressMax = onRowsCalculatedEventArgs.RowsCount;
 		}
 
 		void _mainView_OnAboutInfo(object sender, EventArgs e)
